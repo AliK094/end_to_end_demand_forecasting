@@ -13,10 +13,14 @@ class ForecastEvaluator:
         # Pivot test_df to match forecast format (wide with F1...F28)
         grouped = (
             self.test_df.sort_values(["id", "date"])
-                        .groupby("id", group_keys=False)
+                        .groupby("id", group_keys=False, observed=True)
         )
         actual_df = grouped["sales"].apply(list).apply(pd.Series).reset_index()
         actual_df.columns = [self.id_col] + [f"F{i+1}" for i in range(actual_df.shape[1] - 1)]
+
+        # Save forecast
+        # actual_df.to_csv(f"results/lgbm_actual.csv", index=False)
+        # print(f"Actual data saved to results/lgbm_actual.csv")
 
         # Melt both forecast and actual into long format
         forecast_long = self.forecast_df.melt(id_vars=self.id_col, var_name="F", value_name="forecast")

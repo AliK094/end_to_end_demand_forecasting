@@ -12,12 +12,12 @@ class MovingAverageForecaster:
         df = df.sort_values("date")
 
         recent = (
-            df.groupby("id", group_keys=False)[["id", "sales", "date"]]
+            df.groupby("id", group_keys=False, observed=True)[["id", "sales", "date"]]
               .apply(lambda x: x.tail(self.window))
               .reset_index(drop=True)
         )
 
-        result = recent.groupby("id")["sales"].mean().reset_index()
+        result = recent.groupby("id", observed=True)["sales"].mean().reset_index()
 
         forecast_values = result["sales"].values.reshape(-1, 1)
         forecast_df = pd.DataFrame(
